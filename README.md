@@ -166,7 +166,7 @@ docker build \
 GRPC="50051"
 docker run \
 --interactive --tty \
---publish=:${GRPC} \
+--publish=${GRPC}:${GRPC} \
 dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD)
 ```
 
