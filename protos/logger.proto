@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package logger;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/DazWilkin/dart-grpc-logger/protos";
+
+service Logger {
+    rpc SaveLogs(stream SaveLogsRequest) returns (DummyResult) {}
+}
+  
+message DummyResult {
+    bool success = 1;
+    string error = 2;
+}
+message SaveLogsRequest {
+    string country = 2;
+    string app = 3;
+    repeated Log logs = 4;
+}
+message Log {
+    string id = 1;
+    google.protobuf.Timestamp timestamp = 2;
+    string payload = 3;
+}
