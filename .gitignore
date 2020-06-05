@@ -1,0 +1,10 @@
+# Ignore local protoc
+protoc-3.12.0-linux-x86_64
+
+# Ignore protoc generated files (Golang|Dart)
+protos/*.pb.go
+
+protos/*.dart
+protos/google/*
+
+
