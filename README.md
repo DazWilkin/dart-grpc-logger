@@ -186,6 +186,8 @@ go run ./cmd/client --gprc_endpoint=${GRPC}
 
 ## Dart
 
+Work with Dart without installing Dart SDK locally:
+
 ```bash
 docker run \
 --interactive \
@@ -199,12 +201,17 @@ google/dart \
 and:
 
 ```bash
+# Install protoc plugin and add it to PATH
+pub global activate protoc_plugin
+PATH=${PATH}:/root/.pub-cache/bin
+
+cd /app
 PATH=${PATH}:${PWD}/protoc-3.12.0-linux-x86_64/bin
-PATH=${PATH}:${PWD}/.pub-cache/bin
+
 protoc \
 --dart_out=grpc:protos \
 --proto_path=./protos \
---proto_path=./protoc-3.12.0-linux-x86_64/include
+--proto_path=./protoc-3.12.0-linux-x86_64/include \
 ./protos/logger.proto \
 ./protoc-3.12.0-linux-x86_64/include/google/protobuf/timestamp.proto
 ```
@@ -219,3 +226,8 @@ import '../protos/logger.pbgrpc.dart';
 import '../protos/logger.pbjson.dart';
 ```
 
+And:
+
+```bash
+pub get
+dart dart/client.dart
