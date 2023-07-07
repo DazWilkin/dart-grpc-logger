@@ -1,0 +1,96 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-containers:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dockerfile: dart
+            image: client
+          - dockerfile: server
+            image: server
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup
+        uses: docker/setup-buildx-action@v2
+      - name: login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR }}
+      - name: get-account
+        run: echo "ACCOUNT=$( echo ${{ github.repository }} | awk -F '/' '{print $1}')" >> ${GITHUB_ENV}
+      - name: get-kernel
+        run: echo "VERSION=$(uname --kernel-release)" >> ${GITHUB_ENV}
+      - name: docker-build-push
+        id: docker-build-push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfiles/Dockerfile.${{ matrix.dockerfile }}
+          build-args: |
+            TOKEN=${{ secrets.GHCR }}
+            VERSION=${{ env.VERSION }}
+            COMMIT=${{ github.sha }}
+          tags: ghcr.io/${{ env.ACCOUNT }}/${{ matrix.image }}:${{ github.sha }}
+          push: true
+    #   - name: sigstore
+    #     uses: sigstore/cosign-installer@main
+    #   - name: get-cosign-key
+    #     run: echo "${{ secrets.SIGNING }}" > ./cosign.key
+    #   - name: cosign-sign
+    #     run: |
+    #       cosign sign \
+    #       --yes \
+    #       --key=./cosign.key \
+    #       --annotations="repo=${{ github.repository }}" \
+    #       --annotations="workflow=${{ github.workflow }}" \
+    #       --annotations="commit=${{ github.sha }}" \
+    #       --annotations="version=${{ env.VERSION }}" \
+    #       ghcr.io/${{ env.ACCOUNT }}/${{ matrix.image }}@${{ steps.docker-build-push.outputs.digest }}
+#   update-docs:
+#     runs-on: ubuntu-latest
+#     needs:
+#       - build-containers
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v3
+#       - name: get-account
+#         run: |
+#           echo "ACCOUNT=$( echo ${{ github.repository }} \
+#           | awk -F '/' '{print $1}')" >> ${GITHUB_ENV}
+#       - name: revise-docs
+#         run: |
+#           git config --local user.email "action@github.com"
+#           git config --local user.name "GitHub Actions"
+
+#           IMAGES=(
+#             "${{ env.ACCOUNT }}/dart-grpc-logger-client"
+#             "${{ env.ACCOUNT }}/dart-grpc-logger-server"
+#           )
+
+#           REPO=$( echo ${{ github.repository }} | awk -F '/' '{print $2}')
+
+#           for FILENAME in "./README.md" $(ls ./docs/*.md) "docker-compose.yml"
+#           do
+#             for IMAGE in ${IMAGES[@]}
+#             do
+#               echo "Replacing: ${IMAGE}"
+#               sed \
+#               --in-place \
+#               "s|${IMAGE}:[0-9a-f]\{40\}|${IMAGE}:${{ github.sha }}|g" \
+#               ${FILENAME}           
+#               git add ${FILENAME}
+#             done
+#           done
+
+#           git commit --message "GitHub Actions update image references"
+#           git push origin master

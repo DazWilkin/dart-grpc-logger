@@ -1,8 +1,15 @@
-FROM golang:1.14 as build
+ARG PROJECT="dart-grpc-logger"
+
+ARG GOLANG_VERSION="1.20.4"
+
+ARG VERS="23.4"
+ARG ARCH="linux-x86_64"
+
+FROM golang:${GOLANG_VERSION} as build
 
 # Installs protoc and plugins: (golang) protoc-gen-go
-ARG VERS="3.12.3"
-ARG ARCH="linux-x86_64"
+ARG VERS
+ARG ARCH
 RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/protoc-${VERS}-${ARCH}.zip --output-document=/protoc-${VERS}-${ARCH}.zip && \
     apt update && apt install -y unzip && \
     unzip -o /protoc-${VERS}-${ARCH}.zip -d /protoc-${VERS}-${ARCH} && \
@@ -11,12 +18,8 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include && \
     go get -u github.com/golang/protobuf/protoc-gen-go
 
-ARG PROJ="dart-grpc-logger"
-ARG REPO="github.com/DazWilkin/${PROJ}"
-
-RUN git clone https://${REPO}.git /${PROJ}
-
-WORKDIR /${PROJ}
+ARG PROJECT
+WORKDIR /${PROJECT}
 
 # Generates the Golang protobuf files
 RUN protoc \
@@ -24,14 +27,23 @@ RUN protoc \
     --go_out=plugins=grpc,module=${REPO}:. \
     ./protos/*.proto
 
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+RUN go mod download
+
+COPY cmd/server cmd/server
+
 RUN CGO_ENABLED=0 GOOS=linux \
     go build -a -installsuffix cgo \
     -o /go/bin/server \
     ./cmd/server
 
-FROM scratch
 
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+FROM gcr.io/distroless/static
+
+LABEL org.opencontainers.image.source https://github.com/dazwilkin/dart-grpc-logger
+
 COPY --from=build /go/bin/server /
 
 USER 999

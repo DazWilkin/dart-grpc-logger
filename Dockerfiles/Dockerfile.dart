@@ -1,8 +1,15 @@
+ARG PROJECT="dart-grpc-logger"
+
+ARG VERS="23.4"
+ARG ARCH="linux-x86_64"
+
 FROM google/dart
 
+LABEL org.opencontainers.image.source https://github.com/dazwilkin/dart-grpc-logger
+
 # Installs protoc and plugins: (dart) protoc-gen-go
-ARG VERS="3.12.3"
-ARG ARCH="linux-x86_64"
+ARG VERS
+ARG ARCH
 RUN apt update && \
     apt install -y unzip wget && \
     wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/protoc-${VERS}-${ARCH}.zip --output-document=/protoc-${VERS}-${ARCH}.zip && \
@@ -14,12 +21,11 @@ RUN apt update && \
 RUN pub global activate protoc_plugin
 RUN PATH=${PATH}:/root/.pub-cache/bin
 
-ARG PROJ="dart-grpc-logger"
-ARG REPO="github.com/DazWilkin/${PROJ}"
+ARG PROJECT
 
-RUN git clone https://${REPO}.git /${PROJ}
+WORKDIR /${PROJECT}
 
-WORKDIR /${PROJ}
+COPY dart dart
 
 # Generates the Dart protobuf files including for google/protobuf/timestamp.proto
 RUN protoc \
