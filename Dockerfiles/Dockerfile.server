@@ -7,6 +7,15 @@ ARG ARCH="linux-x86_64"
 
 FROM golang:${GOLANG_VERSION} as build
 
+ARG PROJECT
+WORKDIR /${PROJECT}
+
+# go get protoc-gen-go requires go.mod
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+RUN go mod download
+
 # Installs protoc and plugins: (golang) protoc-gen-go
 ARG VERS
 ARG ARCH
@@ -18,19 +27,11 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include && \
     go get -u github.com/golang/protobuf/protoc-gen-go
 
-ARG PROJECT
-WORKDIR /${PROJECT}
-
 # Generates the Golang protobuf files
 RUN protoc \
-    --proto_path=./protos \
-    --go_out=plugins=grpc,module=${REPO}:. \
-    ./protos/*.proto
-
-COPY go.mod go.mod
-COPY go.sum go.sum
-
-RUN go mod download
+    --proto_path=${PWD}/protos \
+    --go_out=plugins=grpc,module=${REPO}:${PWD} \
+    ${PWD}/protos/*.proto
 
 COPY cmd/server cmd/server
 
