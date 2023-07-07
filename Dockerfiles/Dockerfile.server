@@ -31,9 +31,10 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/
 COPY protos/logger.proto protos/logger.proto
 
 # Generates the Golang protobuf files
+ENV MODULE="github.com/dazwilkin/${PROJECT}"
 RUN protoc \
     --proto_path=${PWD}/protos \
-    --go_out=plugins=grpc,module=${REPO}:${PWD} \
+    --go_out=plugins=grpc,module=${MODULE}:${PWD} \
     ${PWD}/protos/*.proto
 
 COPY cmd/server cmd/server

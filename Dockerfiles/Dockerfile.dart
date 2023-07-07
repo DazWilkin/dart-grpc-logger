@@ -32,9 +32,9 @@ COPY protos/logger.proto protos/logger.proto
 # Generates the Dart protobuf files including for google/protobuf/timestamp.proto
 RUN protoc \
     --proto_path=/usr/local/include \
-    --proto_path=./protos \
-    --dart_out=grpc:./protos \
-    ./protos/logger.proto \
+    --proto_path=${PWD}/protos \
+    --dart_out=grpc:${PWD}/protos \
+    ${PWD}/protos/logger.proto \
     /usr/local/include/google/protobuf/timestamp.proto
 
 RUN pub get
