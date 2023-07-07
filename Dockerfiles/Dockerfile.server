@@ -27,6 +27,9 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include && \
     go get -u github.com/golang/protobuf/protoc-gen-go
 
+# Copy Protobuf(s)
+COPY protos/logger.proto protos/logger.proto
+
 # Generates the Golang protobuf files
 RUN protoc \
     --proto_path=${PWD}/protos \

@@ -27,6 +27,8 @@ WORKDIR /${PROJECT}
 
 COPY dart dart
 
+COPY protos/logger.proto protos/logger.proto
+
 # Generates the Dart protobuf files including for google/protobuf/timestamp.proto
 RUN protoc \
     --proto_path=/usr/local/include \
