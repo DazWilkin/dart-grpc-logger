@@ -7,4 +7,5 @@ protos/*.pb.go
 protos/*.dart
 protos/google/*
 
-
+# Ignore Cosign private key
+cosign.key
