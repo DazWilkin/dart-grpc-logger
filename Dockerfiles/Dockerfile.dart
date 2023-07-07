@@ -1,13 +1,15 @@
 ARG PROJECT="dart-grpc-logger"
 
+ARG DART_VERSION="3.0.5"
+
 ARG VERS="23.4"
 ARG ARCH="linux-x86_64"
 
-FROM google/dart
+FROM docker.io/dart:${DART_VERSION}
 
 LABEL org.opencontainers.image.source https://github.com/dazwilkin/dart-grpc-logger
 
-# Installs protoc and plugins: (dart) protoc-gen-go
+# Installs protoc and plugins: (Dart) protoc-gen-go
 ARG VERS
 ARG ARCH
 RUN apt update && \
@@ -18,16 +20,16 @@ RUN apt update && \
     mv /protoc-${VERS}-${ARCH}/bin/* /usr/local/bin && \
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include
 
-RUN pub global activate protoc_plugin
-RUN PATH=${PATH}:/root/.pub-cache/bin
+RUN dart pub global activate protoc_plugin
+ENV PATH=${PATH}:/root/.pub-cache/bin
 
 ARG PROJECT
 
 WORKDIR /${PROJECT}
 
 COPY dart dart
-
-COPY protos/logger.proto protos/logger.proto
+COPY protos protos
+COPY pubspec.yaml pubspec.yaml
 
 # Generates the Dart protobuf files including for google/protobuf/timestamp.proto
 RUN protoc \
@@ -37,6 +39,6 @@ RUN protoc \
     ${PWD}/protos/logger.proto \
     /usr/local/include/google/protobuf/timestamp.proto
 
-RUN pub get
+RUN dart pub get
 
 ENTRYPOINT ["dart","./dart/client.dart"]

@@ -5,7 +5,7 @@ ARG GOLANG_VERSION="1.20.4"
 ARG VERS="23.4"
 ARG ARCH="linux-x86_64"
 
-FROM golang:${GOLANG_VERSION} as build
+FROM docker.io/golang:${GOLANG_VERSION} as build
 
 ARG PROJECT
 WORKDIR /${PROJECT}
