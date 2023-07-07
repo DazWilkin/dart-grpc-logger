@@ -79,17 +79,18 @@ jobs:
             "${{ env.REPO }}/server"
           )
 
-          FILENAME="README.md"
-          
-          for IMAGE in ${IMAGES[@]}
+          for FILENAME in "README.md"
           do
-            echo "Replacing: ${IMAGE}"
-            sed \
-            --in-place \
-            "s|${IMAGE}:[0-9a-f]\{40\}|${IMAGE}:${{ github.sha }}|g" \
-            ${FILENAME}           
-            git add ${FILENAME}
+            for IMAGE in ${IMAGES[@]}
+            do
+                echo "Replacing: ${IMAGE}"
+                sed \
+                --in-place \
+                "s|${IMAGE}:[0-9a-f]\{40\}|${IMAGE}:${{ github.sha }}|g" \
+                ${FILENAME}           
+                git add ${FILENAME}
+            done
           done
-
+          
           git commit --message "GitHub Actions update image references"
           git push origin master
