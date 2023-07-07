@@ -15,8 +15,8 @@ jobs:
             image: client
           - dockerfile: server
             image: server
-    env:
-      REPO: dazwilkin/dart-grpc-logger
+    # env:
+    #   REPO: dazwilkin/dart-grpc-logger
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -28,6 +28,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR }}
+      - name: downcase-repo
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
       - name: get-kernel
         run: echo "VERSION=$(uname --kernel-release)" >> ${GITHUB_ENV}
       - name: docker-build-push
@@ -56,37 +58,36 @@ jobs:
     #       --annotations="commit=${{ github.sha }}" \
     #       --annotations="version=${{ env.VERSION }}" \
     #       ghcr.io/${{ env.REPO }}/${{ matrix.image }}@${{ steps.docker-build-push.outputs.digest }}
-#   update-docs:
-#     runs-on: ubuntu-latest
-#     needs:
-#       - build-containers
-#     steps:
-#       - name: checkout
-#         uses: actions/checkout@v3
-#       - name: revise-docs
-#         run: |
-#           git config --local user.email "action@github.com"
-#           git config --local user.name "GitHub Actions"
+  update-docs:
+    runs-on: ubuntu-latest
+    needs:
+      - build-containers
+    # env:
+    #   REPO: dazwilkin/dart-grpc-logger
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: downcase-repo
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+      - name: revise-docs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
 
-#           IMAGES=(
-#             "${{ env.REPO }}/dart-grpc-logger-client"
-#             "${{ env.REPO }}/dart-grpc-logger-server"
-#           )
+          IMAGES=(
+            "${{ env.REPO }}/client"
+            "${{ env.REPO }}/server"
+          )
 
-#           REPO=$( echo ${{ github.repository }} | awk -F '/' '{print $2}')
+          for IMAGE in ${IMAGES[@]}
+          do
+            echo "Replacing: ${IMAGE}"
+            sed \
+            --in-place \
+            "s|${IMAGE}:[0-9a-f]\{40\}|${IMAGE}:${{ github.sha }}|g" \
+            ${FILENAME}           
+            git add ${FILENAME}
+          done
 
-#           for FILENAME in "./README.md" $(ls ./docs/*.md) "docker-compose.yml"
-#           do
-#             for IMAGE in ${IMAGES[@]}
-#             do
-#               echo "Replacing: ${IMAGE}"
-#               sed \
-#               --in-place \
-#               "s|${IMAGE}:[0-9a-f]\{40\}|${IMAGE}:${{ github.sha }}|g" \
-#               ${FILENAME}           
-#               git add ${FILENAME}
-#             done
-#           done
-
-#           git commit --message "GitHub Actions update image references"
-#           git push origin master
+          git commit --message "GitHub Actions update image references"
+          git push origin master
