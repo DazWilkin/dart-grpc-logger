@@ -79,6 +79,8 @@ jobs:
             "${{ env.REPO }}/server"
           )
 
+          FILENAME="README.md"
+          
           for IMAGE in ${IMAGES[@]}
           do
             echo "Replacing: ${IMAGE}"
