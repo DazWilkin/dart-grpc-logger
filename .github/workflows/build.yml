@@ -51,10 +51,11 @@ jobs:
           cosign sign \
           --yes \
           --key=./cosign.key \
-          --annotations="repo=${{ github.repository }}" \
-          --annotations="workflow=${{ github.workflow }}" \
+          --annotations="author=${{ github.repository_owner }}" \
           --annotations="commit=${{ github.sha }}" \
+          --annotations="repo=${{ github.repository }}" \
           --annotations="version=${{ env.VERSION }}" \
+          --annotations="workflow=${{ github.workflow }}" \
           ghcr.io/${{ env.REPO }}/${{ matrix.image }}@${{ steps.docker-build-push.outputs.digest }}
   update-docs:
     runs-on: ubuntu-latest
