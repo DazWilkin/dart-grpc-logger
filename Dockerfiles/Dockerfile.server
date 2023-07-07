@@ -25,16 +25,26 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/
     rm /protoc-${VERS}-${ARCH}.zip && \
     mv /protoc-${VERS}-${ARCH}/bin/* /usr/local/bin && \
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include && \
-    go get -u github.com/golang/protobuf/protoc-gen-go
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+RUN which protoc-gen-go && \
+    protoc-gen-go --version
 
 # Copy Protobuf(s)
 COPY protos/logger.proto protos/logger.proto
 
 # Generates the Golang protobuf files
-ENV MODULE="github.com/dazwilkin/${PROJECT}"
+ENV MODULE="github.com/DazWilkin/${PROJECT}"
+
+RUN echo ${MODULE}
+
 RUN protoc \
     --proto_path=${PWD}/protos \
-    --go_out=plugins=grpc,module=${MODULE}:${PWD} \
+    --go_out=${PWD} \
+    --go_opt=module=${MODULE} \
+    --go-grpc_out=${PWD} \
+    --go-grpc_opt=module=${MODULE} \
     ${PWD}/protos/*.proto
 
 COPY cmd/server cmd/server
