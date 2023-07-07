@@ -8,7 +8,7 @@ In one terminal, run the server:
 docker run \
 --interactive --tty \
 --publish=50051:50051 \
-dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695
+ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695
 ```
 
 > **NOTE** While the server can be reconfigured to run on any available port `--grpc_endpoint=...`, the Dart client requires `localhost:50051` because my Dart skills are limited.
@@ -28,7 +28,7 @@ docker run \
 --interactive \
 --tty \
 --net=host \
-dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695
+ghcr.io/dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695
 ```
 
 The client logs:
@@ -155,7 +155,7 @@ protos/*.proto
 
 ```bash
 docker build \
---tag=dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD) \
+--tag=ghcr.io/dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD) \
 --file=./deployment/Dockerfile.server \
 .
 ```
@@ -167,7 +167,7 @@ GRPC="50051"
 docker run \
 --interactive --tty \
 --publish=${GRPC}:${GRPC} \
-dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD)
+ghcr.io/dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD)
 ```
 
 Or:
@@ -206,14 +206,14 @@ pub global activate protoc_plugin
 PATH=${PATH}:/root/.pub-cache/bin
 
 cd /app
-PATH=${PATH}:${PWD}/protoc-3.12.0-linux-x86_64/bin
+PATH=${PATH}:${PWD}/protoc-23.2-linux-x86_64/bin
 
 protoc \
+--proto_path=${PWD}/protos \
+--proto_path=${PWD}/protoc-23.2-linux-x86_64/include \
 --dart_out=grpc:protos \
---proto_path=./protos \
---proto_path=./protoc-3.12.0-linux-x86_64/include \
-./protos/logger.proto \
-./protoc-3.12.0-linux-x86_64/include/google/protobuf/timestamp.proto
+${PWD}/protos/logger.proto \
+${PWD}/protoc-23.2-linux-x86_64/include/google/protobuf/timestamp.proto
 ```
 
 Then:
