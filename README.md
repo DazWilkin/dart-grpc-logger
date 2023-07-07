@@ -247,3 +247,23 @@ And:
 pub get
 dart dart/client.dart
 ```
+
+## [Sigstore](https://www.sigstore.dev/)
+
+The container images are being signed by [Sigstore](https://www.sigstore.dev) and may be verified:
+```bash
+cosign verify \
+--key=${PWD}/cosign.pub \
+ghcr.io/dazwilkin/dart-grpc-logger/client:84a06d9cc166692ddf00c941856c96e853594695
+
+cosign verify \
+--key=${PWD}/cosign.pub \
+ghcr.io/dazwilkin/dart-grpc-logger/server:84a06d9cc166692ddf00c941856c96e853594695
+```
+
+> **NOTE** `cosign.pub` may be downloaded [here](/cosign.pub)
+
+To install cosign:
+```bash
+go install github.com/sigstore/cosign/cmd/cosign@latest
+```
