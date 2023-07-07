@@ -15,6 +15,8 @@ jobs:
             image: client
           - dockerfile: server
             image: server
+    env:
+      REPO: dazwilkin/dart-grpc-logger
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -26,8 +28,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR }}
-      - name: get-account
-        run: echo "ACCOUNT=$( echo ${{ github.repository }} | awk -F '/' '{print $1}')" >> ${GITHUB_ENV}
       - name: get-kernel
         run: echo "VERSION=$(uname --kernel-release)" >> ${GITHUB_ENV}
       - name: docker-build-push
@@ -40,7 +40,7 @@ jobs:
             TOKEN=${{ secrets.GHCR }}
             VERSION=${{ env.VERSION }}
             COMMIT=${{ github.sha }}
-          tags: ghcr.io/${{ env.ACCOUNT }}/${{ matrix.image }}:${{ github.sha }}
+          tags: ghcr.io/${{ env.REPO }}/${{ matrix.image }}:${{ github.sha }}
           push: true
     #   - name: sigstore
     #     uses: sigstore/cosign-installer@main
@@ -55,7 +55,7 @@ jobs:
     #       --annotations="workflow=${{ github.workflow }}" \
     #       --annotations="commit=${{ github.sha }}" \
     #       --annotations="version=${{ env.VERSION }}" \
-    #       ghcr.io/${{ env.ACCOUNT }}/${{ matrix.image }}@${{ steps.docker-build-push.outputs.digest }}
+    #       ghcr.io/${{ env.REPO }}/${{ matrix.image }}@${{ steps.docker-build-push.outputs.digest }}
 #   update-docs:
 #     runs-on: ubuntu-latest
 #     needs:
@@ -63,18 +63,14 @@ jobs:
 #     steps:
 #       - name: checkout
 #         uses: actions/checkout@v3
-#       - name: get-account
-#         run: |
-#           echo "ACCOUNT=$( echo ${{ github.repository }} \
-#           | awk -F '/' '{print $1}')" >> ${GITHUB_ENV}
 #       - name: revise-docs
 #         run: |
 #           git config --local user.email "action@github.com"
 #           git config --local user.name "GitHub Actions"
 
 #           IMAGES=(
-#             "${{ env.ACCOUNT }}/dart-grpc-logger-client"
-#             "${{ env.ACCOUNT }}/dart-grpc-logger-server"
+#             "${{ env.REPO }}/dart-grpc-logger-client"
+#             "${{ env.REPO }}/dart-grpc-logger-server"
 #           )
 
 #           REPO=$( echo ${{ github.repository }} | awk -F '/' '{print $2}')
