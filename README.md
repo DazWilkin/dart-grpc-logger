@@ -1,14 +1,22 @@
 # Dart-based gRPC Logger
 
+[![build](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml/badge.svg)](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml)
+
++ `ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695`
++ `ghcr.io/dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695`
+
 ## Run
 
 In one terminal, run the server:
 
 ```bash
+GRPC="50051"
+
 docker run \
 --interactive --tty \
---publish=50051:50051 \
-ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695
+--publish=${GRPC}:${GRPC} \
+ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695 \
+--grpc_endpoint=:${GRPC}
 ```
 
 > **NOTE** While the server can be reconfigured to run on any available port `--grpc_endpoint=...`, the Dart client requires `localhost:50051` because my Dart skills are limited.
@@ -146,8 +154,11 @@ and:
 
 ```bash
 protoc \
---proto_path=./protos \
---go_out=plugins=grpc,module=${MODULE}:. \
+--proto_path=${PWD}/protos \
+--go_out=${PWD} \
+--go_opt=module=${MODULE} \
+--go-grpc_out=${PWD} \
+--go-grpc_opt=module=${MODULE} \
 protos/*.proto
 ```
 
@@ -156,8 +167,8 @@ protos/*.proto
 ```bash
 docker build \
 --tag=ghcr.io/dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD) \
---file=./deployment/Dockerfile.server \
-.
+--file=${PWD}/Dockerfiles/Dockerfile.server \
+${PWD}
 ```
 
 ### Run
@@ -174,14 +185,16 @@ Or:
 
 ```bash
 GRPC="50051"
-go run ./cmd/server --grpc_endpoint=:${GRPC}
+go run ./cmd/server \
+--grpc_endpoint=:${GRPC}
 ```
 
 There's a Golang client too:
 
 ```bash
 GRPC="50051"
-go run ./cmd/client --gprc_endpoint=${GRPC}
+go run ./cmd/client \
+--gprc_endpoint=${GRPC}
 ```
 
 ## Dart
@@ -189,12 +202,14 @@ go run ./cmd/client --gprc_endpoint=${GRPC}
 Work with Dart without installing Dart SDK locally:
 
 ```bash
+VERS="3.0.5"
+
 docker run \
 --interactive \
 --tty \
 --net=host \
 --volume=${PWD}:/app \
-google/dart \
+docker.io/dart:${VERS} \
   bash
 ```
 
@@ -206,14 +221,14 @@ pub global activate protoc_plugin
 PATH=${PATH}:/root/.pub-cache/bin
 
 cd /app
-PATH=${PATH}:${PWD}/protoc-23.2-linux-x86_64/bin
+PATH=${PATH}:${PWD}/protoc-23.4-linux-x86_64/bin
 
 protoc \
 --proto_path=${PWD}/protos \
---proto_path=${PWD}/protoc-23.2-linux-x86_64/include \
+--proto_path=${PWD}/protoc-23.4-linux-x86_64/include \
 --dart_out=grpc:protos \
 ${PWD}/protos/logger.proto \
-${PWD}/protoc-23.2-linux-x86_64/include/google/protobuf/timestamp.proto
+${PWD}/protoc-23.4-linux-x86_64/include/google/protobuf/timestamp.proto
 ```
 
 Then:
@@ -231,3 +246,4 @@ And:
 ```bash
 pub get
 dart dart/client.dart
+```

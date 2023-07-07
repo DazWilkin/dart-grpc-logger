@@ -7,7 +7,7 @@ ARG ARCH="linux-x86_64"
 
 FROM docker.io/dart:${DART_VERSION}
 
-LABEL org.opencontainers.image.source https://github.com/dazwilkin/dart-grpc-logger
+LABEL org.opencontainers.image.source https://github.com/DazWilkin/dart-grpc-logger
 
 # Installs protoc and plugins: (Dart) protoc-gen-go
 ARG VERS

@@ -57,7 +57,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 
 FROM gcr.io/distroless/static
 
-LABEL org.opencontainers.image.source https://github.com/dazwilkin/dart-grpc-logger
+LABEL org.opencontainers.image.source https://github.com/DazWilkin/dart-grpc-logger
 
 COPY --from=build /go/bin/server /
 
