@@ -2,8 +2,8 @@
 
 [![build](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml/badge.svg)](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml)
 
-+ `ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695`
-+ `ghcr.io/dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695`
++ `ghcr.io/dazwilkin/dart-grpc-logger/server:84a06d9cc166692ddf00c941856c96e853594695`
++ `ghcr.io/dazwilkin/dart-grpc-logger/client:84a06d9cc166692ddf00c941856c96e853594695`
 
 ## Run
 
@@ -15,7 +15,7 @@ GRPC="50051"
 docker run \
 --interactive --tty \
 --publish=${GRPC}:${GRPC} \
-ghcr.io/dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695 \
+ghcr.io/dazwilkin/dart-grpc-logger/server:84a06d9cc166692ddf00c941856c96e853594695 \
 --grpc_endpoint=:${GRPC}
 ```
 
@@ -36,7 +36,7 @@ docker run \
 --interactive \
 --tty \
 --net=host \
-ghcr.io/dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695
+ghcr.io/dazwilkin/dart-grpc-logger/client:84a06d9cc166692ddf00c941856c96e853594695
 ```
 
 The client logs:
@@ -166,7 +166,7 @@ protos/*.proto
 
 ```bash
 docker build \
---tag=ghcr.io/dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD) \
+--tag=ghcr.io/dazwilkin/dart-grpc-logger/server:$(git rev-parse HEAD) \
 --file=${PWD}/Dockerfiles/Dockerfile.server \
 ${PWD}
 ```
@@ -178,7 +178,7 @@ GRPC="50051"
 docker run \
 --interactive --tty \
 --publish=${GRPC}:${GRPC} \
-ghcr.io/dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD)
+ghcr.io/dazwilkin/dart-grpc-logger/server:$(git rev-parse HEAD)
 ```
 
 Or:
