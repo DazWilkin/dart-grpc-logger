@@ -159,7 +159,7 @@ protoc \
 --go_opt=module=${MODULE} \
 --go-grpc_out=${PWD} \
 --go-grpc_opt=module=${MODULE} \
-protos/*.proto
+${PWD}/protos/*.proto
 ```
 
 ### Build
