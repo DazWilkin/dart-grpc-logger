@@ -2,8 +2,8 @@
 
 [![build](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml/badge.svg)](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml)
 
-+ `ghcr.io/dazwilkin/dart-grpc-logger/server:9c9cdd7ecd004f06e7f553fde54bf513c025cc85`
-+ `ghcr.io/dazwilkin/dart-grpc-logger/client:9c9cdd7ecd004f06e7f553fde54bf513c025cc85`
++ `ghcr.io/dazwilkin/dart-grpc-logger/server:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9`
++ `ghcr.io/dazwilkin/dart-grpc-logger/client:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9`
 
 ## Run
 
@@ -15,7 +15,7 @@ GRPC="50051"
 docker run \
 --interactive --tty \
 --publish=${GRPC}:${GRPC} \
-ghcr.io/dazwilkin/dart-grpc-logger/server:9c9cdd7ecd004f06e7f553fde54bf513c025cc85 \
+ghcr.io/dazwilkin/dart-grpc-logger/server:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9 \
 --grpc_endpoint=:${GRPC}
 ```
 
@@ -36,7 +36,7 @@ docker run \
 --interactive \
 --tty \
 --net=host \
-ghcr.io/dazwilkin/dart-grpc-logger/client:9c9cdd7ecd004f06e7f553fde54bf513c025cc85
+ghcr.io/dazwilkin/dart-grpc-logger/client:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9
 ```
 
 The client logs:
@@ -254,8 +254,8 @@ The container images are being signed by [Sigstore](https://www.sigstore.dev) an
 ```bash
 cosign verify \
 --key=${PWD}/cosign.pub \
-ghcr.io/dazwilkin/dart-grpc-logger/client:9c9cdd7ecd004f06e7f553fde54bf513c025cc85 \
-ghcr.io/dazwilkin/dart-grpc-logger/server:9c9cdd7ecd004f06e7f553fde54bf513c025cc85
+ghcr.io/dazwilkin/dart-grpc-logger/client:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9 \
+ghcr.io/dazwilkin/dart-grpc-logger/server:bc683e2b37e3e8981d8e345a2d8fc7d5da945bd9
 ```
 
 > **NOTE** `cosign.pub` may be downloaded [here](/cosign.pub)
