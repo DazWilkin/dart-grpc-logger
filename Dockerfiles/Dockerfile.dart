@@ -1,8 +1,8 @@
 ARG PROJECT="dart-grpc-logger"
 
-ARG DART_VERSION="3.0.5"
+ARG DART_VERSION="3.5.0"
 
-ARG VERS="23.4"
+ARG VERS="28.0"
 ARG ARCH="linux-x86_64"
 
 FROM docker.io/dart:${DART_VERSION}
