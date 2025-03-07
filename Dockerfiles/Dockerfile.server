@@ -1,11 +1,11 @@
 ARG PROJECT="dart-grpc-logger"
 
-ARG GOLANG_VERSION="1.23.0"
+ARG GOLANG_VERSION="1.24"
 
 ARG VERS="28.0"
 ARG ARCH="linux-x86_64"
 
-FROM docker.io/golang:${GOLANG_VERSION} as build
+FROM docker.io/golang:${GOLANG_VERSION} AS build
 
 ARG PROJECT
 WORKDIR /${PROJECT}
@@ -57,7 +57,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 
 FROM gcr.io/distroless/static
 
-LABEL org.opencontainers.image.source https://github.com/DazWilkin/dart-grpc-logger
+LABEL org.opencontainers.image.source=https://github.com/DazWilkin/dart-grpc-logger
 
 COPY --from=build /go/bin/server /
 
