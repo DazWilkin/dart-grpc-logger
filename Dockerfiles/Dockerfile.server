@@ -2,7 +2,7 @@ ARG PROJECT="dart-grpc-logger"
 
 ARG GOLANG_VERSION="1.24"
 
-ARG VERS="28.0"
+ARG VERS="30.0"
 ARG ARCH="linux-x86_64"
 
 FROM docker.io/golang:${GOLANG_VERSION} AS build
