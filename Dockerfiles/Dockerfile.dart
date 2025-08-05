@@ -1,8 +1,17 @@
-FROM google/dart
+ARG PROJECT="dart-grpc-logger"
 
-# Installs protoc and plugins: (dart) protoc-gen-go
-ARG VERS="3.12.3"
+ARG DART_VERSION="3.5.0"
+
+ARG VERS="28.0"
 ARG ARCH="linux-x86_64"
+
+FROM docker.io/dart:${DART_VERSION}
+
+LABEL org.opencontainers.image.source https://github.com/DazWilkin/dart-grpc-logger
+
+# Installs protoc and plugins: (Dart) protoc-gen-go
+ARG VERS
+ARG ARCH
 RUN apt update && \
     apt install -y unzip wget && \
     wget https://github.com/protocolbuffers/protobuf/releases/download/v${VERS}/protoc-${VERS}-${ARCH}.zip --output-document=/protoc-${VERS}-${ARCH}.zip && \
@@ -11,24 +20,25 @@ RUN apt update && \
     mv /protoc-${VERS}-${ARCH}/bin/* /usr/local/bin && \
     mv /protoc-${VERS}-${ARCH}/include/* /usr/local/include
 
-RUN pub global activate protoc_plugin
-RUN PATH=${PATH}:/root/.pub-cache/bin
+RUN dart pub global activate protoc_plugin
+ENV PATH=${PATH}:/root/.pub-cache/bin
 
-ARG PROJ="dart-grpc-logger"
-ARG REPO="github.com/DazWilkin/${PROJ}"
+ARG PROJECT
 
-RUN git clone https://${REPO}.git /${PROJ}
+WORKDIR /${PROJECT}
 
-WORKDIR /${PROJ}
+COPY dart dart
+COPY protos protos
+COPY pubspec.yaml pubspec.yaml
 
 # Generates the Dart protobuf files including for google/protobuf/timestamp.proto
 RUN protoc \
     --proto_path=/usr/local/include \
-    --proto_path=./protos \
-    --dart_out=grpc:./protos \
-    ./protos/logger.proto \
+    --proto_path=${PWD}/protos \
+    --dart_out=grpc:${PWD}/protos \
+    ${PWD}/protos/logger.proto \
     /usr/local/include/google/protobuf/timestamp.proto
 
-RUN pub get
+RUN dart pub get
 
 ENTRYPOINT ["dart","./dart/client.dart"]

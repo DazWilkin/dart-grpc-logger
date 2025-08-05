@@ -1,14 +1,22 @@
 # Dart-based gRPC Logger
 
+[![build](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml/badge.svg)](https://github.com/DazWilkin/dart-grpc-logger/actions/workflows/build.yml)
+
++ `ghcr.io/dazwilkin/dart-grpc-logger/server:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85`
++ `ghcr.io/dazwilkin/dart-grpc-logger/client:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85`
+
 ## Run
 
 In one terminal, run the server:
 
 ```bash
+GRPC="50051"
+
 docker run \
 --interactive --tty \
---publish=50051:50051 \
-dazwilkin/dart-grpc-logger-server:84a06d9cc166692ddf00c941856c96e853594695
+--publish=${GRPC}:${GRPC} \
+ghcr.io/dazwilkin/dart-grpc-logger/server:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85 \
+--grpc_endpoint=:${GRPC}
 ```
 
 > **NOTE** While the server can be reconfigured to run on any available port `--grpc_endpoint=...`, the Dart client requires `localhost:50051` because my Dart skills are limited.
@@ -28,7 +36,7 @@ docker run \
 --interactive \
 --tty \
 --net=host \
-dazwilkin/dart-grpc-logger-client:84a06d9cc166692ddf00c941856c96e853594695
+ghcr.io/dazwilkin/dart-grpc-logger/client:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85
 ```
 
 The client logs:
@@ -146,18 +154,21 @@ and:
 
 ```bash
 protoc \
---proto_path=./protos \
---go_out=plugins=grpc,module=${MODULE}:. \
-protos/*.proto
+--proto_path=${PWD}/protos \
+--go_out=${PWD} \
+--go_opt=module=${MODULE} \
+--go-grpc_out=${PWD} \
+--go-grpc_opt=module=${MODULE} \
+${PWD}/protos/*.proto
 ```
 
 ### Build
 
 ```bash
 docker build \
---tag=dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD) \
---file=./deployment/Dockerfile.server \
-.
+--tag=ghcr.io/dazwilkin/dart-grpc-logger/server:$(git rev-parse HEAD) \
+--file=${PWD}/Dockerfiles/Dockerfile.server \
+${PWD}
 ```
 
 ### Run
@@ -167,21 +178,23 @@ GRPC="50051"
 docker run \
 --interactive --tty \
 --publish=${GRPC}:${GRPC} \
-dazwilkin/dart-grpc-logger-server:$(git rev-parse HEAD)
+ghcr.io/dazwilkin/dart-grpc-logger/server:$(git rev-parse HEAD)
 ```
 
 Or:
 
 ```bash
 GRPC="50051"
-go run ./cmd/server --grpc_endpoint=:${GRPC}
+go run ./cmd/server \
+--grpc_endpoint=:${GRPC}
 ```
 
 There's a Golang client too:
 
 ```bash
 GRPC="50051"
-go run ./cmd/client --gprc_endpoint=${GRPC}
+go run ./cmd/client \
+--gprc_endpoint=${GRPC}
 ```
 
 ## Dart
@@ -189,12 +202,14 @@ go run ./cmd/client --gprc_endpoint=${GRPC}
 Work with Dart without installing Dart SDK locally:
 
 ```bash
+VERS="3.0.5"
+
 docker run \
 --interactive \
 --tty \
 --net=host \
 --volume=${PWD}:/app \
-docker.io/google/dart \
+docker.io/dart:${VERS} \
   bash
 ```
 
@@ -206,14 +221,14 @@ dart pub global activate protoc_plugin
 PATH=${PATH}:/root/.pub-cache/bin
 
 cd /app
-PATH=${PATH}:${PWD}/protoc-3.12.0-linux-x86_64/bin
+PATH=${PATH}:${PWD}/protoc-23.4-linux-x86_64/bin
 
 protoc \
+--proto_path=${PWD}/protos \
+--proto_path=${PWD}/protoc-23.4-linux-x86_64/include \
 --dart_out=grpc:protos \
---proto_path=./protos \
---proto_path=./protoc-3.12.0-linux-x86_64/include \
-./protos/logger.proto \
-./protoc-3.12.0-linux-x86_64/include/google/protobuf/timestamp.proto
+${PWD}/protos/logger.proto \
+${PWD}/protoc-23.4-linux-x86_64/include/google/protobuf/timestamp.proto
 ```
 
 Then:
@@ -231,3 +246,21 @@ And:
 ```bash
 pub get
 dart dart/client.dart
+```
+
+## [Sigstore](https://www.sigstore.dev/)
+
+The container images are being signed by [Sigstore](https://www.sigstore.dev) and may be verified:
+```bash
+cosign verify \
+--key=${PWD}/cosign.pub \
+ghcr.io/dazwilkin/dart-grpc-logger/client:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85 \
+ghcr.io/dazwilkin/dart-grpc-logger/server:07644432aefc6a81d14d2c4b0ed82fe5dcb8fd85
+```
+
+> **NOTE** `cosign.pub` may be downloaded [here](/cosign.pub)
+
+To install cosign:
+```bash
+go install github.com/sigstore/cosign/cmd/cosign@latest
+```

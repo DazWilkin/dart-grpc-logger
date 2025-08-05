@@ -14,3 +14,5 @@ pubspec.lock
 # Miscellany
 package_config.json
 
+# Ignore Cosign private key
+cosign.key

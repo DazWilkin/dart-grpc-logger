@@ -10,7 +10,9 @@ import (
 
 var _ pb.LoggerServer = (*Server)(nil)
 
-type Server struct{}
+type Server struct {
+	pb.UnimplementedLoggerServer
+}
 
 func NewServer() *Server {
 	return &Server{}
