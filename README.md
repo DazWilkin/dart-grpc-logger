@@ -194,7 +194,7 @@ docker run \
 --tty \
 --net=host \
 --volume=${PWD}:/app \
-google/dart \
+docker.io/google/dart \
   bash
 ```
 
@@ -202,7 +202,7 @@ and:
 
 ```bash
 # Install protoc plugin and add it to PATH
-pub global activate protoc_plugin
+dart pub global activate protoc_plugin
 PATH=${PATH}:/root/.pub-cache/bin
 
 cd /app
